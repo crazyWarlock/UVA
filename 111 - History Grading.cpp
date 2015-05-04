@@ -31,17 +31,17 @@ int main(){
 
 	int a;
 	for(int i = 1; i <= n; i ++){
-//		cin>>a;
-//		cor[a]=i;
-		cin>>cor[i];
+		cin>>a;
+		cor[a]=i;
+//		cin>>cor[i];
 	}
 
-	while(cin>>ans[1]){
-//		ans[a]=1;
+	while(cin>>a){
+		ans[a]=1;
 		for(int i = 2; i <= n; i ++){
-//			cin>>a;
-//			ans[a]=i;
-			cin>>ans[i];
+			cin>>a;
+			ans[a]=i;
+//			cin>>ans[i];
 		}
 		cout<<LCS(n)<<endl;
 	}
