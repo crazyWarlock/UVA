@@ -38,7 +38,7 @@ int main(){
 			}
 		}
 
-		cout<<"The minimum cutting is "<<dp[0][n+1]<<endl;
+		cout<<"The minimum cutting is "<<dp[0][n+1]<<"."<<endl;
 	}
 	return 0;
 }
