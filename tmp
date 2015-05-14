@@ -1,0 +1,272 @@
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <stack>
+#include <list>
+using namespace std;
+
+const int maxn=25000;
+const int prime=9949;
+
+string dic[maxn];
+int dp[17][17];
+list<int> g[maxn];
+int color[maxn];
+int head[prime];
+int next[maxn];
+
+void init(){
+    for(int i = 0; i < maxn; i ++) next[i]=-1;
+    for(int i = 0; i < prime; i ++) head[i]=-1;
+}
+
+void insert(int id){
+    int len=dic[id].length();
+    int k=0;
+    for(int i = 0; i < len; i ++){
+        k += (dic[id][i]-'0')*(dic[id][i]-'0');
+        k %= prime;
+    }
+    next[k]=head[prime];
+    head[prime]=k;
+}
+
+int find(int id, string str){
+    int len=str.length();
+    int k=0;
+    for(int i = 0; i < len; i ++){
+        k += (str[i]-'0')*(str[i]-'0');
+        k %= prime;
+    }
+    for(int i = head[k]; i != -1; i = next[i]){
+        if(str == dic[i] && i > id){
+            g[id].push_back(i);
+            return i;
+        }
+    }
+    return -1;
+}
+
+struct I{
+    I(int i, int s):id(i), seq(s){}
+    int id, seq;
+};
+
+int DFS(int src){
+    int ans = 0;
+    stack<I> s;
+    s.push(I(src,1));
+    color[src]=1;
+    while(!s.empty()){
+        I tmp = s.top();
+        s.pop();
+        color[tmp.id]=2;
+        list<int>::iterator it;
+        for(it=g[tmp.id].begin(); it != g[tmp.id].end(); it ++){
+            int n = *it;
+            if(color[n]==0){
+                color[n]=1;
+                s.push(I(n, tmp.seq+1));
+            }
+        }
+        ans=max(ans, tmp.seq);
+    }
+    return ans;
+}
+
+int main(){
+    int cnt = 0;
+    while(cin>>dic[cnt++]);
+
+    for(int i = 0; i < cnt; i ++){
+        int len = dic[i].length();
+        for(int j = 0; j < len; j ++){
+            string a, b, c;
+            string word=dic[i];
+            for(int k = word[j]; k < 'z'; k ++){
+                a.push_back((char)k);
+                a.append(dic[i]);
+                find(i,a);
+
+                b=word.substr(0,j);
+                b.push_back((char)k);
+                b.append(word.substr(j+1, string::npos));
+                find(i,b);
+
+                c=word.substr(0.j);
+                c.append(word.substr(j+1, string::npos));
+                find(i,c);
+            }
+        }
+    }
+        
+    memset(color, 0, sizeof(color));
+
+    int ans = 0;
+    for(int i = 0; i < cnt; i ++){
+        if(color[i] == 0){
+            ans = max(ans, DFS(i));                
+        }
+    }
+    cout<<ans<<endl;
+
+    return 0;
+}
+
+
+#include <iostream>
+#include <list>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+const int maxn=1001;
+list<int> g[maxn];
+int color[maxn];
+int cc[maxn];
+
+void DFS_Visit(int src){
+    list<int>::iterator it;
+    for(it = g[src].begin(); it != g[src].end(); it ++){
+        if(color[*it] == 0){
+            color[*it]=1;
+            cc[*it]=cc[src];
+            DFS_Visit(*it);
+        }
+    }
+    color[src]=2;
+}
+
+void DFS(int n){
+    memset(color, 0, sizeof(color));
+    
+    int ccd=0;
+
+    for(int i = 0; i < n; i ++){
+        if(color[i]==0){
+            ccd ++;
+            color[i]=1;
+            cc[i]=ccd;
+            DFS_Visit(i);
+        }
+    }
+}
+
+int main(){
+    int T, n, m, a, b;
+    cin>>T;
+    while(T--){
+        cin>>n>>m;
+        for(int i = 0; i < n; i ++) g[i].clear();
+        for(int i = 0; i < m; i ++){
+            cin>>a>>b;
+            g[a].push_back(b);
+        }
+
+        DFS(n);
+
+        sort(cc, cc + n);
+        
+        int saved=-1;
+        int ans=0, cnt=0;
+        for(int i = 0; i < n; i ++){
+            if(cc[i]!=saved){
+                ans=max(ans, cnt);
+                cnt=0;
+                saved=cc[i];
+            }else{
+                cnt ++;
+            }
+        }
+
+        cout<<ans<<endl;
+    }
+    return 0;
+}
+
+/*
+ *
+ * DAG 记忆化搜索
+ *
+ */
+
+#include <iostream>
+#include <cstring>
+#include <list>
+#include <algorithm>
+using namespace std;
+
+const int maxn=15000;
+
+list<int> g[maxn];
+int color[maxn];
+int time;
+int dp[maxn];
+struct P{
+    int id, fin;
+}p[maxn];
+
+bool cmp(const P& lhs, const P& rhs){
+    return lhs.fin<rhs.fin;
+}
+
+void DFS_Visit(int src){
+    time ++;
+    list<int>::iterator it;
+    for(it = g[src].begin(); it != g[src].end(); it ++){
+        if(color[*it] == 0){
+            color[*it]=1;
+            DFS_Visit(*it);
+        }
+    }
+    color[*it]=2;
+    time ++;
+    p[src].fin=time;
+}
+
+void DFS(int n){
+    memset(color, 0, sizeof(color));
+    time=0;
+
+    for(int i = 0; i < n; i ++){
+        p[i].id=i;
+        if(color[i] == 0){
+            color[i]=1;
+            DFS_Visit(i);
+        }
+    }
+}
+
+
+int main(){
+    int n, k;
+    while(cin>>n){
+    
+    for(int i = 0; i < n; i ++){
+        cin>>k;
+        if(k == 0){
+            g[0].push_back(n);
+        }
+        int d;
+        int pre = i + 1;
+        for(int j = 0; j < k; j ++){
+            cin>>d;
+            g[pre].push_back(d);
+            pre=d;
+        }
+        g[d].push_back(n);
+    }
+    
+    DFS(n);
+    sort(p, p + n, cmp);
+
+    dp[p[0].id]=1;
+    for(int i = 0; i <= n; i ++){
+        for(it=g[p[i].id].begin(); it != g[p[i].id].end(); it ++){
+            dp[*it] += dp[p[i].id];
+        }
+    }
+    cout<<dp[n]<<endl;
+    }
+    return 0;
+}
